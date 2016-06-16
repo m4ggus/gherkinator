@@ -15,11 +15,6 @@
     "behat/mink-selenium2-driver" : "*",
     "monolog/monolog": "*"
   },
-  "autoload" : {
-    "psr-0" : {
-      "Open\\GherkinatorBundle": ""
-    }
-  },
   "target-dir" : "Open/GherkinatorBundle",
   "minimum-stability" : "dev",
   "authors": [
