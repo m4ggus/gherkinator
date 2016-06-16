@@ -13,7 +13,6 @@
     "behat/mink-extension" : "*",
     "behat/mink-goutte-driver" : "*",
     "behat/mink-selenium2-driver" : "*",
-    "monolog/monolog": "*"
   },
   "minimum-stability" : "dev",
   "authors": [
