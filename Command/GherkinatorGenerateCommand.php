@@ -1,22 +1,16 @@
 <?php
 /**
- * Created by salma BHA
- * Date: 06/06/16 11:40
- * Class GherkinatorGenerateCommand
+ * @author: Open
  */
-
 namespace Open\GherkinatorBundle\Command;
 
 use Open\GherkinatorBundle\GherkinatorBundle;
 use Open\GherkinatorBundle\Services\Converter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class GherkinatorGenerateCommand extends ContainerAwareCommand
 {
