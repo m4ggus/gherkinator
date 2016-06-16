@@ -1,0 +1,13 @@
+#services:
+#    gherkinator.example:
+#        class: Open\GherkinatorBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
+
+services:
+    gherkinator_utils:
+        class: Open\GherkinatorBundle\Services\Utils
+        arguments: ["@service_container"]
+
+    gherkinator_convertor:
+          class: Open\GherkinatorBundle\Services\Converter
+          arguments: ["@service_container"]
