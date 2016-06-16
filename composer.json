@@ -1,5 +1,5 @@
 {
-  "name": "gherkinator/parse-selenium-ide",
+  "name": "gherkinator/selenium-ide-parser",
   "description": "Selenium IDE / Gherkin converter",
   "license": "GPL-3.0+",
   "require" :{
