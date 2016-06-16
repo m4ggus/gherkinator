@@ -21,5 +21,8 @@
       "name": "open",
       "email": "email@open.com"
     }
-  ]
+  ],
+  "autoload": {
+    "psr-4": { "Open\\GherkinatorBundle": "" }
+  }
 }
