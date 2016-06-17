@@ -96,10 +96,10 @@ EOT
         if (!$input->getArgument('folder_path')) {
             $folder = $this->getHelper('dialog')->askAndValidate(
                 $output,
-                'Please choose a sender:',
+                'Please choose a folder path: ',
                 function ($sender) {
                     if (empty($sender)) {
-                        throw new \Exception('sender can not be empty');
+                        throw new \Exception('folder can not be empty');
                     }
 
                     return $sender;
