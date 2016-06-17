@@ -79,7 +79,7 @@ class Converter {
                         } //Write in the file destination;
                         else{
                             $message = "First you have to init behat\n";
-                            $message.= "For this you have you execute the next lines\n";
+                            $message.= "You have to execute the next lines\n";
                             $message.= "\tsudo bin/behat --init\n";
                             $message.= "\tsudo chmod -R 777 features/\n";
                             throw  new \Exception($message);
