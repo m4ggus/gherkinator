@@ -232,6 +232,7 @@ class Utils {
                 }
             }
         }
+        $result .= "\n";
         return $result;
     }
 
