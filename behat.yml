@@ -1,0 +1,19 @@
+default:
+  extensions:
+    Behat\MinkExtension:
+      #base_url: http://www.rfi.open
+      base_url: http://www.france24.open
+      #goutte permet de naviger et de parcourir un site en PHP (sans utiliser de réel navigateur)
+      #selenium2 permet de prendre le controle d'un navigateur (firefox par exemple) pour simuler une navigation réelle
+      goutte: ~
+      selenium2: ~
+        #browser: chrome
+#ui permet de désigner un comportement lié à l'application / interface
+#core permet de décrire un comportement dans le core (code php) de notre application
+  suites:
+    core:
+      contexts: [FeatureContext]
+      filters: { tags: '@core' }
+    ui:
+      contexts: [FeatureContext, WebContext]
+      filters: { tags: '@ui' }

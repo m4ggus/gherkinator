@@ -74,7 +74,16 @@ class Converter {
                     if ($body) {
                         $feature = $header . $body;
                         $file = $feature_name . '.feature';
-                        file_put_contents($this->container->getParameter('features_path').$file, $feature); //Write in the file destination;
+                        if(is_dir($this->container->getParameter('features_path'))) {
+                            file_put_contents($this->container->getParameter('features_path') . $file, $feature);
+                        } //Write in the file destination;
+                        else{
+                            $message = "First you have to init behat\n";
+                            $message.= "For this you have you execute the next lines\n";
+                            $message.= "\tsudo bin/behat --init\n";
+                            $message.= "\tsudo chmod -R 777 features/\n";
+                            throw  new \Exception($message);
+                        }
                         $log->addInfo("\t CONVERT \"" . $fichier . "\" TO \t \"" . $file . "\"\t" . 'OK' . "\n");
                         if ($total_line != $total_line_converted) {
                             Utils::copyFile($fichier, $folder, $this->container->getParameter('to_review_file')); //Copy the file in the toReview file

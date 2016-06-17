@@ -100,143 +100,137 @@ class Utils {
             'label'                => 'Given I am on label $target',
         );
         $result = "        "; //indentation
-        try {
-            $td0 = $command->childNodes[1];
-            if ($td0) $instruction = $td0->nodeValue;
-            else $instruction = '';
-            if ($td1 = $command->childNodes[3]) {
-                $target = self::parse_target($td1->nodeValue);
-                unset($value, $action, $postfix);
-                list($action, $postfix) = self::parse_assert_command($instruction);
-                if ($td2 = $command->childNodes[5]) {
-                    if (strpos($td2->nodeValue, "=")) {
-                        list($m, $value) = explode("=", $td2->nodeValue);
-                    } else {
-                        $value = $td2->nodeValue;
-                    }
-                    if ($action == 'type') $value = " ";
-                    $value = "\"$value\"";
+        $td0 = $command->childNodes[1];
+        if ($td0) $instruction = $td0->nodeValue;
+        else $instruction = '';
+        if ($td1 = $command->childNodes[3]) {
+            $target = self::parse_target($td1->nodeValue);
+            unset($value, $action, $postfix);
+            list($action, $postfix) = self::parse_assert_command($instruction);
+            if ($td2 = $command->childNodes[5]) {
+                if (strpos($td2->nodeValue, "=")) {
+                    list($m, $value) = explode("=", $td2->nodeValue);
+                } else {
+                    $value = $td2->nodeValue;
                 }
-                if ($action === false) {
-                    if (!empty($target)) {
-                        $target = "$target\"";
-                    }
-                    if (preg_match('/("id")/', $target) === 0) {
-                        $target = "\"$target";
-                    }
-                    switch ($instruction) {
-                        case 'open':
-                            if (empty($target)) {
-                                $target = 'homepage';
-                            }
-                            break;
-                        case 'label':
-                            if (!empty($label)) {
-                                $target = $label;
-                            }
-                            break;
-                        case 'setSpeed':
-                            if (!empty($target)) {
-                                $delay = intval($target);
-                            } else {
-                                $container = new \Symfony\Component\DependencyInjection\Container();
-                                $delay = $container->getParameter('default_delay');
-                            }
-                            return '';
-                        default:
-                            break;
-                    }
+                if ($action == 'type') $value = " ";
+                $value = "\"$value\"";
+            }
+            if ($action === false) {
+                if (!empty($target)) {
+                    $target = "$target\"";
+                }
+                if (preg_match('/("id")/', $target) === 0) {
+                    $target = "\"$target";
+                }
+                switch ($instruction) {
+                    case 'open':
+                        if (empty($target)) {
+                            $target = 'homepage';
+                        }
+                        break;
+                    case 'label':
+                        if (!empty($label)) {
+                            $target = $label;
+                        }
+                        break;
+                    case 'setSpeed':
+                        if (!empty($target)) {
+                            $delay = intval($target);
+                        } else {
+                            $container = new \Symfony\Component\DependencyInjection\Container();
+                            $delay = $container->getParameter('default_delay');
+                        }
+                        return '';
+                    default:
+                        break;
+                }
 
-                    if ($r = $action2step[$instruction]) {
+                if (isset($action2step[$instruction])  && $r = $action2step[$instruction]) {
+                    eval("\$result .= \"$r\";");
+                }
+            } else {
+                if (isset($action2step[$action]) && $r = $action2step[$action]) {
+                    if (preg_match('/Not/', $postfix)) {
+                        $result .= $action2step["not"];
+                    } else {
                         eval("\$result .= \"$r\";");
                     }
-                } else {
-                    if ($r = $action2step[$action]) {
-                        if (preg_match('/Not/', $postfix)) {
-                            $result .= $action2step["not"];
-                        } else {
-                            eval("\$result .= \"$r\";");
-                        }
-                    }
-                    if ($postfix !== 'TextPresent') {
-                        if (preg_match('/"css"/', $target) === 0) {
-                            $target = "$target";
-                        }
-                    }
-                    switch ($postfix) {
-                        case 'Title':
-                            $result .= " \"$value\" in the title";
-                            break;
-                        case 'NotTitle':
-                            $result .= " not \"$value\" in the title";
-                            break;
-                        case 'Table':
-                            $result .= " \"$value\" in the table cell $target\"";
-                            break;
-                        case 'NotTable':
-                            $result .= " not \"$value\" in the table cell $target\"";
-                            break;
-                        case 'NotText':
-                        case 'NotValue':
-                            $result .= " not \"$value\"";
-                            if (!empty($target)) {
-                                $result .= " in the element $target\"";
-                            }
-                            break;
-                        case 'TextPresent':
-                            $result .= " $target";
-                            break;
-                        case 'Visible':
-                        case 'NotVisible':
-                        case 'ElementPresent':
-                            $result .= " \"$target\"";
-                            if (!empty(str_replace('""', '', $value))) {
-                                if ($action == 'store') $result .= " into ";
-                                else $result .= " with ";
-                                $result .= $value;
-                            }
-                            break;
-                        case 'Eval':
-                            $result .= " \"$target\"";
-                            if (!empty(str_replace('""', '', $value))) {
-                                if ($action == 'store') $result .= " into ";
-                                else $result .= " with value ";
-                                $result .= $value;
-                            }
-                            break;
-                        case 'Value':
-                            $result .= " $target\"";
-                            if (!empty(str_replace('""', '', $value))) {
-                                if ($action == 'store') $result .= " into ";
-                                else $result .= " with value ";
-                                $result .= $value;
-                            }
-                            break;
-                        case 'Text':
-                            $result .= " \"$target\"";
-                            if (!empty(str_replace('""', '', $value))) {
-                                if ($action == 'store') $result .= " into ";
-                                else $result .= " with ";
-                                $result .= $value;
-                            }
-                            break;
-                        case 'ElementNotPresent':
-                            $result .= " \"$target\"";
-                            if (!empty(str_replace('""', '', $value))) $result .= " with value $value";
-                            break;
-                        default:
-                            $result .= " $value ";
-                            if (!empty($target)) {
-                                $result .= "in the element \"$target\"";
-                            }
-                            break;
+                }
+                if ($postfix !== 'TextPresent') {
+                    if (preg_match('/"css"/', $target) === 0) {
+                        $target = "$target";
                     }
                 }
+                switch ($postfix) {
+                    case 'Title':
+                        $result .= " \"$value\" in the title";
+                        break;
+                    case 'NotTitle':
+                        $result .= " not \"$value\" in the title";
+                        break;
+                    case 'Table':
+                        $result .= " \"$value\" in the table cell $target\"";
+                        break;
+                    case 'NotTable':
+                        $result .= " not \"$value\" in the table cell $target\"";
+                        break;
+                    case 'NotText':
+                    case 'NotValue':
+                        $result .= " not \"$value\"";
+                        if (!empty($target)) {
+                            $result .= " in the element $target\"";
+                        }
+                        break;
+                    case 'TextPresent':
+                        $result .= " $target";
+                        break;
+                    case 'Visible':
+                    case 'NotVisible':
+                    case 'ElementPresent':
+                        $result .= " \"$target\"";
+                        if (!empty(str_replace('""', '', $value))) {
+                            if ($action == 'store') $result .= " into ";
+                            else $result .= " with ";
+                            $result .= $value;
+                        }
+                        break;
+                    case 'Eval':
+                        $result .= " \"$target\"";
+                        if (!empty(str_replace('""', '', $value))) {
+                            if ($action == 'store') $result .= " into ";
+                            else $result .= " with value ";
+                            $result .= $value;
+                        }
+                        break;
+                    case 'Value':
+                        $result .= " $target\"";
+                        if (!empty(str_replace('""', '', $value))) {
+                            if ($action == 'store') $result .= " into ";
+                            else $result .= " with value ";
+                            $result .= $value;
+                        }
+                        break;
+                    case 'Text':
+                        $result .= " \"$target\"";
+                        if (!empty(str_replace('""', '', $value))) {
+                            if ($action == 'store') $result .= " into ";
+                            else $result .= " with ";
+                            $result .= $value;
+                        }
+                        break;
+                    case 'ElementNotPresent':
+                        $result .= " \"$target\"";
+                        if (!empty(str_replace('""', '', $value))) $result .= " with value $value";
+                        break;
+                    default:
+                        $result .= " $value ";
+                        if (!empty($target)) {
+                            $result .= "in the element \"$target\"";
+                        }
+                        break;
+                }
             }
-            $result .= "\n";
-        }
-        catch(ContextErrorException $e){
-            $result .= "\n";
         }
         return $result;
     }
