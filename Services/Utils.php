@@ -4,7 +4,6 @@
  */
 namespace Open\GherkinatorBundle\Services;
 
-use Symfony\Component\Debug\Exception\ContextErrorException;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Utils {
