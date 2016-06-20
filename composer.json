@@ -4,8 +4,8 @@
   "license": "GPL-3.0+",
   "require" :{
     "php": " >=5.3.2",
-    "symfony/framework-bundle": "~2.4|~2.8.*",
-    "symfony/console": "~2.4|~2.8.*",
+    "symfony/framework-bundle": "~2.4|~2.8",
+    "symfony/console": "~2.4|~2.8",
     "behat/behat" : "3.1.x-dev",
     "behat/mink" : "1.6.*",
     "behat/mink-extension" : "*",
