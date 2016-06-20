@@ -3,6 +3,7 @@ try your scenarios under a behat gherkin environment.
 
 This package can be found on packagist and is best loaded using composer
 
+=======
 Install
 =======
     1- In the "composer.json" add :
