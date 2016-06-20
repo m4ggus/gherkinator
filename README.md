@@ -21,21 +21,9 @@ Install
     3- In the "AppKernel.php" add :
         new Open\GherkinatorBundle\GherkinatorBundle(),
 
-    4- In the "app/config/parameters.yml" add :
-        #Gherkinator
-            default_target_charser: "UTF-8"
-            default_br_text: "\r\n"
-            default_span_text: " "
-            max_file_size: "600000"
-            default_delay: "5000"
-            features_path: "%kernel.root_dir%/../features/"
-            screen_shots_path: "%kernel.root_dir%/../screen_shots/"
-            gherkinator_path: "%kernel.root_dir%/../src/Open/GherkinatotBundle/"
-            archive_path: "%kernel.root_dir%/../archives/"
-            log_path: "%kernel.root_dir%/logs/"
-            treated_file: "treated/"
-            error_file: "error/"
-            to_review_file: "toReview/"
+    4- In the "app/config/config.yml" add :
+        imports:
+        - { resource: @GherkinatorBundle/Resources/config/parameters.yml }
     
     5- Then Init behat :
         sudo bin/behat --init
