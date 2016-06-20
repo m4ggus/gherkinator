@@ -47,7 +47,7 @@ class Utils {
         $destination_path = addslashes($source_path.$destination_folder);
         if(!file_exists($destination_path)){
             mkdir($destination_path);
-            chmod($destination_path, 0766);  // Tout pour le propriétaire, lecture et ecriture pour les autres
+            chmod($destination_path, 0766);  // Everything for the owner, read and write for the others
         }
         $contents = file_get_contents(addslashes($source_path.$file));
         file_put_contents($destination_path.$file, $contents); //Write in the file destination;
@@ -60,7 +60,7 @@ class Utils {
     static function archivate($archive_path, $feature_path){
         if(!file_exists($archive_path)){
             mkdir($archive_path);
-            chmod($archive_path, 0766);  // Tout pour le propriétaire, lecture et ecriture pour les autres
+            chmod($archive_path, 0766);  // Everything for the owner, read and write for the others
         }
         if(sizeof(glob($feature_path."*")) >1){
             $archive = new \ZipArchive();
@@ -136,10 +136,11 @@ class Utils {
                     case 'setSpeed':
                         if (!empty($target)) {
                             $delay = intval($target);
-                        } else {
+                        }
+                        /*else {
                             $container = new \Symfony\Component\DependencyInjection\Container();
                             $delay = $container->getParameter('default_delay');
-                        }
+                        }*/
                         return '';
                     default:
                         break;
