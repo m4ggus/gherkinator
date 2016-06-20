@@ -1,15 +1,10 @@
 Gherkinator Selenium IDE parser is a simple parser which allows you to convert Selenium IDE tests and
 try your scenarios under a behat gherkin environment.
 
-
+This package can be found on packagist and is best loaded using composer
 
 Install
-===========================================
-
-    This package can be found on packagist and is best loaded using composer
-
-Usage
-============================================
+=======
     1- In the "composer.json" add :
         "behat/behat" : "3.1.x-dev",
         "behat/mink" : "1.6.*",
@@ -18,11 +13,14 @@ Usage
         "behat/mink-selenium2-driver" : "*",
         "monolog/monolog": "*",
         "gherkinator/selenium-ide-parser" : "dev-master"
+    
+    2- Update the composer
+        sudo composer update
 
-    2- In the "AppKernel.php" add :
+    3- In the "AppKernel.php" add :
         new Open\GherkinatorBundle\GherkinatorBundle(),
 
-    3- In the "app/config/parameters.yml" add :
+    4- In the "app/config/parameters.yml" add :
         #Gherkinator
             default_target_charser: "UTF-8"
             default_br_text: "\r\n"
@@ -38,9 +36,13 @@ Usage
             error_file: "error/"
             to_review_file: "toReview/"
     
-    4- Then Init behat :
+    5- Then Init behat :
         sudo bin/behat --init
         sudo chmod -R 777 features
-    5- Then you should copy from "vendor/gherkinator/selenium-ide-parser" :
+    6- Then you should copy from "vendor/gherkinator/selenium-ide-parser" :
         "behat.yml" in the project root
         "WebContext.php" under "features/bootstrap"
+
+Usage
+=====
+    php app/console gherkinator:feature:generate
