@@ -62,7 +62,7 @@ class Converter {
                         $total_line = 0;
 
                         foreach ($testsuitehtml->filter('a') as $tr) { //Run the file line by line in order to convert them
-                            $file_path = $folder.$tr->attributes['href']->nodeValue;
+                            $file_path = $folder.$tr->attributes->item(0)->nodeValue;
                             list($nb_line, $nb_converted_line, $part_feature) = Utils::convertfile2feature($file_path);
                             $body .= $part_feature;
                             $total_line_converted += $nb_converted_line;
