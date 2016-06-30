@@ -13,6 +13,7 @@ Install
         "behat/mink-goutte-driver" : "*",
         "behat/mink-selenium2-driver" : "*",
         "monolog/monolog": "*",
+        "paquettg/php-html-parser" : "*",
         "gherkinator/selenium-ide-parser" : "dev-master"
     
     2- Update the composer

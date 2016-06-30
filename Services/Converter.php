@@ -47,22 +47,22 @@ class Converter {
             $feature = null;
             if (($fichier != '.') && ($fichier != '..') && (!preg_match('/\.tar/', $fichier)) && is_file($file_path)) {
                 $testsuitehtml = Utils::file_get_html($file_path);
-                if ($testsuitehtml && count($testsuitehtml->filter('td'))) { //There is a table
-                    $feature_name = $testsuitehtml->filter('td')->eq(0); //Retieve the feature's name
-                    if (count($feature_name->filter('b'))) { //Title in bold
-                        $feature_name = $testsuitehtml->filter('b')->eq(0); //Retieve the feature's name
+                if ($testsuitehtml && count($testsuitehtml->find('td'))) { //There is a table
+                    $feature_name = $testsuitehtml->find('td')[0]; //Retieve the feature's name
+                    if (count($feature_name->find('b'))) { //Title in bold
+                        $feature_name = $testsuitehtml->find('b')[0]; //Retieve the feature's name
                     }
-                    $feature_name = $feature_name->html();
+                    $feature_name = $feature_name->innerHtml;
                     $header = "@ui\nFeature: " . $feature_name . "\n\n\n" .
                         "@javascript \n" .
                         "    Scenario:"; //Feature Gherkin's hearder
                     $body = null;
-                    if (count($testsuitehtml->filter('a'))) { //It's a test case suite
+                    if (count($testsuitehtml->find('a'))) { //It's a test case suite
                         $total_line_converted = 0;
                         $total_line = 0;
 
-                        foreach ($testsuitehtml->filter('a') as $tr) { //Run the file line by line in order to convert them
-                            $file_path = $folder.$tr->attributes->item(0)->nodeValue;
+                        foreach ($testsuitehtml->find('a') as $tr) { //Run the file line by line in order to convert them
+                            $file_path = $folder.$tr->getAttribute('href');
                             list($nb_line, $nb_converted_line, $part_feature) = Utils::convertfile2feature($file_path);
                             $body .= $part_feature;
                             $total_line_converted += $nb_converted_line;

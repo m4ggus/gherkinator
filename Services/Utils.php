@@ -4,7 +4,7 @@
  */
 namespace Open\GherkinatorBundle\Services;
 
-use Symfony\Component\DomCrawler\Crawler;
+use PHPHtmlParser\Dom;
 
 class Utils {
     /**
@@ -14,7 +14,8 @@ class Utils {
     static function file_get_html($url, $use_include_path = false, $context = null, $offset = -1) {
         //}, $lowercase = true, $forceTagsClosed = true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN = true, $defaultBRText = DEFAULT_BR_TEXT, $defaultSpanText = DEFAULT_SPAN_TEXT) {
         if($html = file_get_contents($url, $use_include_path, $context, $offset)){
-            $dom = new Crawler($html);
+            $dom = new Dom;
+            $dom->load($html);
             return $dom;
         }
         return false;
@@ -29,7 +30,7 @@ class Utils {
         $testsuitehtml = self::file_get_html($file_path); // Retrieve tests cases from ".test" files
         $nb_ligne = 0;
         $nb_ligne_convert = 1;
-        foreach ($testsuitehtml->filter('tr') as $tr) { //Run the file line by line in order to convert them
+        foreach ($testsuitehtml->find('tr') as $tr) { //Run the file line by line in order to convert them
             $feature .= self::convert2step($tr); //Find the tests cases and convert them
             if (self::convert2step($tr) != $result = "        "."\n") { //empty line
                 $nb_ligne_convert++;
@@ -99,18 +100,20 @@ class Utils {
             'label'                => 'Given I am on label $target',
         );
         $result = "        "; //indentation
-        $td0 = $command->childNodes[1];
-        if ($td0) $instruction = $td0->nodeValue;
+        $td0 = $command->find('td')[0];
+        if ($td0){
+            $instruction = $td0->innerHtml;
+        }
         else $instruction = '';
-        if ($td1 = $command->childNodes[3]) {
-            $target = self::parse_target($td1->nodeValue);
+        if ($td1 = $command->find('td')[1]) {
+            $target = self::parse_target($td1->innerHtml);
             unset($value, $action, $postfix);
             list($action, $postfix) = self::parse_assert_command($instruction);
-            if ($td2 = $command->childNodes[5]) {
+            if ($td2 = $command->find('td')[2]) {
                 if (strpos($td2->nodeValue, "=")) {
-                    list($m, $value) = explode("=", $td2->nodeValue);
+                    list($m, $value) = explode("=", $td2->innerHtml);
                 } else {
-                    $value = $td2->nodeValue;
+                    $value = $td2->innerHtml;
                 }
                 if ($action == 'type') $value = " ";
                 $value = "\"$value\"";
@@ -137,10 +140,6 @@ class Utils {
                         if (!empty($target)) {
                             $delay = intval($target);
                         }
-                        /*else {
-                            $container = new \Symfony\Component\DependencyInjection\Container();
-                            $delay = $container->getParameter('default_delay');
-                        }*/
                         return '';
                     default:
                         break;
