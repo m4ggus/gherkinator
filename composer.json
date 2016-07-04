@@ -11,6 +11,7 @@
     "behat/mink-extension" : "*",
     "behat/mink-goutte-driver" : "*",
     "behat/mink-selenium2-driver" : "*",
+    "paquettg/php-html-parser" : "*",
     "monolog/monolog": "*"
   },
   "minimum-stability" : "dev",
