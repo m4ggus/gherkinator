@@ -256,7 +256,7 @@ class Utils {
      * syntax parsing Selenium IDE target
      */
     static function parse_target($td) {
-        $target = str_replace("\"", "'", trim($td));
+        $target = str_replace("&quot;", "'", trim($td));
         $target = str_replace("&gt;", ">", $target);
         $target = str_replace("&#152", "~", $target);
         $target = str_replace("&#134", "+", $target);
