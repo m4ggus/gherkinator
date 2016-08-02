@@ -1,4 +1,5 @@
 <?php
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\MinkExtension\Context\MinkContext;
 use Symfony\Component\DependencyInjection\ExpressionLanguage;
 use Symfony\Component\Security\Acl\Exception\Exception;
@@ -90,10 +91,9 @@ class WebContext extends MinkContext{
             $element->click();
         }
         catch (UnknownError $e){
-            $javascript = "$('#".addslashes($id)."')[0].click();";
+            $javascript = "$('#".addslashes($id)."').click();";
             $this->getSession()->executeScript($javascript);
         }
-
     }
 
 
@@ -135,20 +135,23 @@ class WebContext extends MinkContext{
      */
     public function iShouldSee($target, $type){
         if($type == 'css'){
-            $element = $this->getSession()->getPage()->find("css", $target);
+            $element = $this->getSession()->getPage()->find($type, $target);
         }
         elseif($type == 'xpath'){
             $session = $this->getSession();
             $element = $this->getSession()->getPage()->find(
                 'xpath',
-                $session->getSelectorsHandler()->selectorToXpath('xpath', $target)
+                $session->getSelectorsHandler()->selectorToXpath($type, $target)
             );
         }
         elseif($type == 'link') {
             $element = $this->getSession()->getPage()->findLink($target);
         }
         if (empty($element)) {
-            throw new \Exception(sprintf("The page '%s' does not contain '%s'", $this->getSession()->getCurrentUrl(), $target));
+            throw new \Exception(
+                sprintf("The page '%s' does not contain '%s'",
+                    $this->getSession()->getCurrentUrl(), $target)
+            );
         }
     }
 
@@ -163,23 +166,23 @@ class WebContext extends MinkContext{
         $valeur = null;
         if($type == 'css') {
             $element = $this->getSession()->getPage()->find($type, $target);
-            $valeur = $element->getHtml();
+            if ($element) $valeur = $element->getHtml();
         }
         elseif($type == 'xpath') {
             $session = $this->getSession();
             $element = $this->getSession()->getPage()->find(
                 'xpath',
-                $session->getSelectorsHandler()->selectorToXpath('xpath', $target)
+                $session->getSelectorsHandler()->selectorToXpath($type, $target)
             );
-            $valeur = $element->getHtml();
+            if ($element) $valeur = $element->getHtml();
         }
         elseif($type == 'id') {
             $element = $this->getSession()->getPage()->findById($target);
-            $valeur = $element->getValue();
+            if ($element) $valeur = $element->getValue();
         }
         elseif($type == 'link') {
             $element = $this->getSession()->getPage()->findLink($target);
-            $valeur = $element->getValue();
+            if ($element) $valeur = $element->getValue();
         }
         if(empty($element) || trim($valeur)!= $value) {
             throw new \Exception(sprintf("The page '%s' does not contain '%s'", $this->getSession()->getCurrentUrl(), $target));
@@ -286,7 +289,9 @@ class WebContext extends MinkContext{
             $element = $this->getSession()->getPage()->find("xpath", $target);
         }
         if (!empty($element)) {
-            $this->tVariables[$variable] = $element->getValue();
+            if($element->getValue()) $this->tVariables[$variable] = $element->getValue();
+            else if($element->getHtml()) $this->tVariables[$variable] = $element->getHtml();
+            else if($element->getText()) $this->tVariables[$variable] = $element->getText();
         }
         else{
             $this->tVariables[$variable] = false;
@@ -308,22 +313,22 @@ class WebContext extends MinkContext{
      */
     public function iVisit($target) {
         $expression = $this->readExpression($target);
-        $language = new ExpressionLanguage();
-        $language->evaluate($expression);
-        $this->visitPath($target);
+        $this->visitPath($expression);
     }
 
+
     public function readExpression($target) {
-        $expression =null;
+        $expression = null;
         $tVariables = $this->tVariables;
         if(is_array($tVariables)){
             foreach($tVariables as $variable => $valeur){
-                if(strpos($variable, $target)){
-                    $expression = str_replace($variable, $valeur, $target);
+                if(strpos($target, $variable)){
+                    $expression = str_replace('${'.$variable.'}', $valeur, $target);
+                    $target = $expression;
                 }
             }
         }
-        echo $expression;
+        $expression = str_replace(' ', '', $target);
         return $expression;
     }
 
@@ -339,34 +344,17 @@ class WebContext extends MinkContext{
      * @When I fill in :target :type with :value
      */
     public function iFillInWith($target, $type, $value) {
-        /*$element = null;
-        if($type == 'css') {
-            $element = $this->getSession()->getPage()->find($type, $target);
+        try {
+            $target = $this->fixStepArgument($target);
+            $value = $this->fixStepArgument($value);
+            $this->getSession()->getPage()->fillField($target, $value);
         }
-        elseif($type == 'xpath') {
-            $session = $this->getSession();
-            $element = $this->getSession()->getPage()->find(
-            'xpath',
-            $session->getSelectorsHandler()->selectorToXpath('xpath', $target)
-            );
+        catch (ElementNotFoundException $e){
+            $javascript = '';
+            if($type == 'id') $javascript = "$('#".addslashes($target)."').val('".addslashes($value)."');";
+            else if ($type == 'css') $javascript = "$('".addslashes($target)."').val('".addslashes($value)."');";
+            $this->getSession()->executeScript($javascript);
         }
-        elseif($type == 'id') {
-            var_dump($target);
-            $element = $this->getSession()->getPage()->findById($target);
-            var_dump($element);
-        }
-        elseif($type == 'link') {
-            $element = $this->getSession()->getPage()->findLink($target);
-        }
-        if (empty($element)) {
-            throw new \Exception(sprintf("The page '%s' contains the css selector '%s'", $this->getSession()->getCurrentUrl(), $target));
-        }
-        else{
-            $element->fillField($target, $value);
-        }*/
-        $target = $this->fixStepArgument($target);
-        $value = $this->fixStepArgument($value);
-        $this->getSession()->getPage()->fillField($target, $value);
     }
 
     /**
@@ -386,34 +374,29 @@ class WebContext extends MinkContext{
      * @When I select :target :type with :value
      */
     public function iSelectWith($target, $type, $value) {
-        $element = null;
-        if($type == 'id'){
-            $element = $this->getSession()->getPage()->findById($target);
+        try {
+            $this->getSession()->getPage()->selectFieldOption($target, $value);
         }
-        if($type == 'named') {
-            $element = $this->getSession()->getPage()->hasSelect($target);
-        }
-        if (empty($element)) {
-            throw new \Exception(sprintf("The page '%s' does not contain the css selector '%s'", $this->getSession()->getCurrentUrl(), $target));
-        }
-        else{
-            $element->selectOption($value);
+        catch (ElementNotFoundException $e) {
+            $javascript = '';
+            if ($type == 'id') $javascript = "$('#".addslashes($target)."').select('".addslashes($value)."');";
+            if ($type == 'css') $javascript = "$('".addslashes($target)."').select('".addslashes($value)."');";
+            if ($type == 'name') $javascript = "$('".addslashes($target)."').select('".addslashes($value)."');";
+            $this->getSession()->executeScript($javascript);
         }
     }
 
     /**
      * @Then I store :value in :target
      */
-    public function iStoreIn($value, $target)
-    {
+    public function iStoreIn($value, $target) {
         $this->tVariables[$target] = $value;
     }
 
     /**
-     * @When /^I log in$/
+     * @When I log in as admin
      */
-    public function iLogIn()
-    {
+    public function iLogInAsAdmin() {
         $e1 = $this->getSession()->getPage()->findById("edit-name");
         $e2 = $this->getSession()->getPage()->findById("edit-pass");
         if ($e1 && $e2) {
@@ -422,6 +405,21 @@ class WebContext extends MinkContext{
             $this->iClickOn("edit-submit", "id");
             $this->iWaitForSeconds(1);
         }
+    }
+
+    /**
+     * @Then I select window :target
+     */
+    public function iSelectWindow($target) {
+        if ($target == "null") $target = "";
+        $this->getSession()->switchToWindow($target);
+    }
+
+    /**
+     * @Then I visit the page :target
+     */
+    public function iVisitThePage($target) {
+        $this->visit($target);
     }
 }
 ?>
