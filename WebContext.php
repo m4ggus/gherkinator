@@ -7,6 +7,9 @@ use WebDriver\Exception\MoveTargetOutOfBounds;
 use WebDriver\Exception\UnknownError;
 
 class WebContext extends MinkContext{
+
+    const AJAX_TIMEOUT = 20000;
+
     /**
      * Initializes context.
      *
@@ -430,6 +433,14 @@ class WebContext extends MinkContext{
      */
     public function iVisitThePage($target) {
         $this->visit($target);
+    }
+
+    /**
+     * @When I wait for Ajax
+     */
+    public function iWaitForAjax()
+    {
+        $this->getSession()->wait(self::AJAX_TIMEOUT, 'window.jQuery.active === 0');
     }
 }
 ?>
