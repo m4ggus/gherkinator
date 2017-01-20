@@ -347,6 +347,16 @@ class WebContext extends MinkContext{
         try {
             $target = $this->fixStepArgument($target);
             $value = $this->fixStepArgument($value);
+
+            if ($type === "xpath") {
+                $element = $this->getSession()->getPage()->find('xpath', $this->getSession()->getSelectorsHandler()->selectorToXpath('xpath', $target));
+                if (!$element) {
+                    throw new \Exception(sprintf('The page contains  no element "%s:%s"', $type, $target));
+                }
+                $element->setValue($value);
+                return;
+            }
+
             $this->getSession()->getPage()->fillField($target, $value);
         }
         catch (ElementNotFoundException $e){
